@@ -1,0 +1,41 @@
+#include <SPI.h>
+#include <mcp2515.h>
+
+struct can_frame canMsg;
+MCP2515 mcp2515(10);
+int LED_PIN=7;
+
+void setup() {
+  Serial.begin(115200);
+pinMode(LED_PIN,OUTPUT);
+  mcp2515.reset();
+  mcp2515.setBitrate(CAN_125KBPS);
+  mcp2515.setNormalMode();
+
+  
+  Serial.println("------- CAN Read ----------");
+  Serial.println("ID  DLC   DATA");
+}
+
+void loop() {
+  // Serial.println(mcp2515.readMessage(&canMsg));
+  if (mcp2515.readMessage(&canMsg) == MCP2515::ERROR_OK) {
+    Serial.print(canMsg.can_id, HEX);
+    Serial.print(" ");
+    Serial.print(canMsg.can_dlc, HEX);
+    Serial.print(" ");
+
+    for (int i = 0; i < canMsg.can_dlc; i++) {
+      Serial.print(canMsg.data[i], DEC);
+      Serial.print(" ");
+    }
+    int data=canMsg.data[0];
+if(data==69){
+digitalWrite(LED_PIN,HIGH);
+}else{
+  digitalWrite(LED_PIN,LOW);
+}
+    Serial.println();
+  }
+
+}
